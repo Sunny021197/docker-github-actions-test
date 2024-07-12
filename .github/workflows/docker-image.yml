@@ -1,4 +1,4 @@
-name: Run Docker Container
+name: Run Docker Container and Clean Up
 
 on:
   push:
@@ -16,8 +16,21 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
+      # Stop and remove all running containers
+      - name: Stop and Remove Containers
+        run: |
+          docker stop $(docker ps -aq) || true
+          docker rm $(docker ps -aq) || true
+
+      # Remove all Docker images
+      - name: Remove Docker Images
+        run: |
+          docker rmi -f $(docker images -q) || true
+
+      # Build Docker image
       - name: Build Docker image
         run: docker build -t nginx-demo .
 
+      # Run Docker container
       - name: Run Docker container
         run: docker run -d -p 80:80 nginx-demo
