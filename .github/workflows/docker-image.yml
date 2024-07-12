@@ -1,18 +1,23 @@
-name: Docker Image CI
+name: Run Docker Container
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
-
-  build:
-
-    runs-on: ubuntu-latest
+  run_container:
+    runs-on: self-hosted
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker image
+        run: docker build -t nginx-demo .
+
+      - name: Run Docker container
+        run: docker run -d -p 80:80 nginx-demo
